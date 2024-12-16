@@ -7,7 +7,7 @@ import header.tech_econ_data as ted
 if not os.path.exists('./.cache'):
     os.makedirs('.cache')
 
-st.markdown('# 一、模型设置(基础版)')
+st.markdown('# 一、模型设置(基础版)---还在修改')
 
 st.markdown('## 1. 基本信息')
 
@@ -199,23 +199,12 @@ if want_to_check:
     for a in arc_available_trans_constraint.keys():
         st.markdown('可以建设%s的路线有%s:'%(str(a),str(arc_available_trans_constraint[a])))
 
-st.markdown('## 3. 输入各种技术的装机总量和需求量约束')
-st.markdown('说明:此处的装机总量约束用于某一技术在所有地点的总规模约束,比如本项目只有100MW光伏指标,即光需要将光伏的最大装机容量设为100MW.')
+st.markdown('## 3. 输入电氢氨醇需求数据')
 
 tech_max={y:{} for y in periods_year}
 
 tech_min={y:{} for y in periods_year}
 
-for t in list(node_available_tech_constraint.keys())[:-ted.consume_type_amount]:
-    col_3=st.columns([1]*(1+3*len(periods_year)))
-    col_3[0].markdown('#### %s:'%t)
-    for k in range(len(periods_year)):
-        check_caplimit=col_3[k*3+1].checkbox("%d年是否有容量约束?"%periods_year[k],value=False,key='capacity_limit_%s_%d'%(t,periods_year[k]))
-        maxcap=col_3[k*3+2].number_input("%d年最大装机量"%periods_year[k], value=0,key='maxcap_%s_%d'%(t,periods_year[k]))
-        mincap=col_3[k*3+3].number_input("%d年最小装机量"%periods_year[k], value=0,key='mincap_%s_%d'%(t,periods_year[k]))
-        if check_caplimit:
-            tech_max[periods_year[k]][t]=maxcap
-            tech_min[periods_year[k]][t]=mincap
 
 def create_dem_template(node_available_tech_constraint):
     power_dem_hourfix=pd.DataFrame(0.0,index=range(8760),columns=['unit']+['%s-%s'%(n,y) for n in node_available_tech_constraint['PD-hourfix'] for y in periods_year])
@@ -270,8 +259,6 @@ def create_dem_template(node_available_tech_constraint):
 
 dict_DemandDataTemplate=create_dem_template(node_available_tech_constraint)
 
-st.markdown('### 输入电氢氨醇需求数据')
-
 def input_dem_data(which_dem='PD'):
     dem_name={'PD':'电力','HD':'氢','AD':'氨','MD':'醇'}
     dem_name_en={'PD':'power','HD':'h2','AD':'nh3','MD':'ch3oh'}
@@ -305,11 +292,9 @@ input_dem_data('MD')
 
 st.markdown('## 4. 输入模型主要参数')
 
-technical_max_coal_ammonia_ratio=st.number_input("输入煤电机组最大掺氨比例(若不考虑,默认为0即可)", value=0.0, min_value=0.0,max_value=0.4,key='technical_max_coal_ammonia_ratio')
-
-annual_coal_ammonia_ratio=st.number_input("输入煤电年度总体最低掺氨比例(若不考虑,默认为0即可)", value=0.0, min_value=0.0,max_value=1.0,key='annual_coal_ammonia_ratio')
-
-coal_power_max_hour=st.number_input("输入煤电最大利用小时数(若不考虑,默认为8760即可)", value=8760, min_value=0,max_value=8760,key='coal_power_max_hour')
+technical_max_coal_ammonia_ratio=0.0
+annual_coal_ammonia_ratio=0.0
+coal_power_max_hour=8760
 
 discounted_rate=0.06
 grid_power_scenario={y:0.2 for y in periods_year}
@@ -319,7 +304,7 @@ carbon_price={y:0.0 for y in periods_year}
 discounted_rate = st.number_input("输入折现率", value=0.06,min_value=0.0,max_value=1.0,key='discounted_rate')
 
 for y in periods_year:
-    grid_power_scenario[y] = st.number_input("输入%d年的最大购电比率(下网电量占总用电量比例)"%y, value=0.20,min_value=0.0,max_value=1.0,key='grid_power_scenario_%d'%y)
+    grid_power_scenario[y] = st.number_input("输入%d年的最大购电比率(下网电量占总用电量比例)"%y, value=0.0,min_value=0.0,max_value=1.0,key='grid_power_scenario_%d'%y)
 
 allow_sell_pu=st.checkbox("是否允许售电到电网?",key='allow_sell_pu')
 
